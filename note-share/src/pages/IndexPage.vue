@@ -89,14 +89,32 @@
 
 <script>
 import { ref } from 'vue'
+import { useUserStore } from 'src/stores/user-store';
+import { onMounted } from 'vue';
+import router from 'src/router';
 
 export default {
   setup () {
+
+    let useUser = useUserStore()
+
+
+    onMounted(async () => {
+      redirectForLogin()
+    })
+
+    function redirectForLogin() {
+      if(useUser.user){
+        console.log("must push")
+        $router.push('/signup')
+      }
+    }
+
     return {
       qeditor: ref(
         '<pre>Check out the two different types of dropdowns' +
         ' in each of the "Align" buttons.</pre> '
-      )
+      ),
     }
   }
 }
