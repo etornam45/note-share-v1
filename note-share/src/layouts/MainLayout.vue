@@ -2,24 +2,25 @@
 import { ref } from 'vue'
 import { useUserStore } from 'src/stores/user-store'
 
+import SideBar from 'src/components/SideBar.vue'
 export default {
-  setup () {
-    const leftDrawerOpen = ref(false)
-    const rightDrawerOpen = ref(false)
-    const useUser = useUserStore();
-
-    return {
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      },
-      useUser,
-      rightDrawerOpen,
-      toggleRightDrawer () {
-        rightDrawerOpen.value = !rightDrawerOpen.value
-      }
-    }
-  }
+    setup() {
+        const leftDrawerOpen = ref(false);
+        const rightDrawerOpen = ref(false);
+        const useUser = useUserStore();
+        return {
+            leftDrawerOpen,
+            toggleLeftDrawer() {
+                leftDrawerOpen.value = !leftDrawerOpen.value;
+            },
+            useUser,
+            rightDrawerOpen,
+            toggleRightDrawer() {
+                rightDrawerOpen.value = !rightDrawerOpen.value;
+            }
+        };
+    },
+    components: { SideBar }
 }
 </script>
 
@@ -43,7 +44,7 @@ export default {
     </q-header>
 
     <q-drawer show-if-above v-model="leftDrawerOpen" side="left" elevated>
-      <!-- drawer content -->
+      <!-- drawer content --><side-bar/>
     </q-drawer>
 
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
