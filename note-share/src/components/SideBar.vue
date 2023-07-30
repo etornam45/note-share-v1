@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="tree">
     <TreeView :treeData="treeData" />
   </div>
 </template>
@@ -114,3 +114,10 @@ export default {
   },
 };
 </script>
+
+
+<style>
+.tree{
+    padding: 20px;
+}
+</style>
