@@ -4,7 +4,7 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: ':noteId', component: () => import('pages/IndexPage.vue') },
     ]
   },
   {
@@ -14,6 +14,16 @@ const routes = [
       {
         path: '',
         component: () => import('pages/signUp.vue'),
+      }
+    ]
+  },
+  {
+    path: "/login",
+    component: () => import('layouts/default.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/logIn.vue'),
       }
     ]
   },
