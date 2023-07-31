@@ -1,121 +1,160 @@
 <template>
-  <div class="q-pa-md q-gutter-sm">
-    <q-editor
-      v-model="qeditor"
-      :dense="$q.screen.lt.md"
-      :toolbar="[
-        
-        ['bold', 'italic', 'strike', 'underline', 'subscript', 'superscript'],
-        [
-          {
-            label: $q.lang.editor.align,
-            icon: $q.iconSet.editor.align,
-            fixedLabel: true,
-            list: 'only-icons',
-            options: ['left', 'center', 'right', 'justify']
-          }
-        ],
-        ['token', 'hr', 'link', 'custom_btn'],
-        ['print', 'fullscreen'],
-        [
-          {
-            label: $q.lang.editor.formatting,
-            icon: $q.iconSet.editor.formatting,
-            list: 'no-icons',
-            options: [
-              'p',
-              'h1',
-              'h2',
-              'h3',
-              'h4',
-              'h5',
-              'h6',
-              'code'
-            ]
-          },
-          {
-            label: $q.lang.editor.fontSize,
-            icon: $q.iconSet.editor.fontSize,
-            fixedLabel: true,
-            fixedIcon: true,
-            list: 'no-icons',
-            options: [
-              'size-1',
-              'size-2',
-              'size-3',
-              'size-4',
-              'size-5',
-              'size-6',
-              'size-7'
-            ]
-          },
-          {
-            label: $q.lang.editor.defaultFont,
-            icon: $q.iconSet.editor.font,
-            fixedIcon: true,
-            list: 'no-icons',
-            options: [
-              'default_font',
-              'arial',
-              'arial_black',
-              'comic_sans',
-              'courier_new',
-              'impact',
-              'lucida_grande',
-              'times_new_roman',
-              'verdana'
-            ]
-          },
-          'removeFormat'
-        ],
-        ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
-
-        ['undo', 'redo'],
-        ['viewsource']
-      ]"
-      :fonts="{
-        arial: 'Arial',
-        arial_black: 'Arial Black',
-        comic_sans: 'Comic Sans MS',
-        courier_new: 'Courier New',
-        impact: 'Impact',
-        lucida_grande: 'Lucida Grande',
-        times_new_roman: 'Times New Roman',
-        verdana: 'Verdana'
-      }"
-    />
-    </div>
+  <ElementTiptap :content="content" :extensions="extensions" ref="editor"/>
 </template>
 
-<script>
-import { ref } from 'vue'
-import { useUserStore } from 'src/stores/user-store';
-import { onMounted } from 'vue';
-import router from 'src/router';
+<script setup>
+import ElementPlus from "element-plus";
+import ElementTiptapPlugin from "element-tiptap-vue3-fixed";
+import { ElementTiptap } from "element-tiptap-vue3-fixed";
+import en from "element-tiptap-vue3-fixed/lib/locales/en";
+// import ElementTiptap's styles
+import "element-tiptap-vue3-fixed/lib/style.css";
+import { ref } from "vue";
+import { onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import PocketBase from "pocketbase";
+import { useUserStore } from "src/stores/user-store";
+import { getCurrentInstance } from "vue";
 
-export default {
-  setup () {
 
-    let useUser = useUserStore()
+import * as Y from 'yjs'
+import {WebrtcProvider} from 'y-webrtc'
 
+const pb = new PocketBase("http://127.0.0.1:8090");
+const useUser = useUserStore()
+const $route = useRoute()
+const $router = useRouter()
 
-    onMounted(async () => {
-      redirectForLogin()
-    })
+const ydoc = new Y.Doc(); 
+const provider = new WebrtcProvider($route.params.noteId, ydoc)
 
-    function redirectForLogin() {
-      if(useUser.user){
-        console.log("must push")
-        $router.push('/signup')
-      }
+import Collaboration from '@tiptap/extension-collaboration'
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+
+import {
+  // necessary extensions
+  Doc,
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Underline,
+  Italic,
+  Strike,
+  BulletList,
+  OrderedList,
+  TextAlign,
+  FontSize,
+  // codeView,
+  Image,
+  Table,
+  Link,
+  Iframe,
+  CodeBlock,
+  Blockquote,
+  TaskList,
+  Indent,
+  LineHeight,
+  HorizontalRule,
+  HardBreak,
+  History,
+  FormatClear,
+  Color,
+  Highlight,
+  Fullscreen,
+  SelectAll,
+  FontFamily,
+  Gapcursor,
+} from "element-tiptap-vue3-fixed";
+
+// editor extensions
+// they will be added to menubar and bubble menu by the order you declare.
+const extensions = [
+  Doc,
+  Text,
+  Paragraph,
+  Heading.configure({ level: 5 }),
+  Bold.configure({ bubble: true }), // render command-button in bubble menu.
+  Underline.configure({ bubble: true, menubar: false }), // render command-button in bubble menu but not in menubar.
+  Italic.configure({ bubble: true }),
+  Strike.configure({ bubble: true }),
+  BulletList,
+  OrderedList,
+  TextAlign,
+  FontSize,
+  // codeView,
+  Image,
+  Table,
+  Collaboration.configure({
+    document: ydoc,
+  }),
+  CollaborationCursor.configure({
+    provider: provider,
+    user:{
+      name: useUser.user.name,
+      color: "#DDFD9B",
     }
+  }),
+  Link.configure({ bubble: true }),
+  Iframe,
+  CodeBlock,
+  Blockquote,
+  TaskList,
+  Indent,
+  LineHeight,
+  HorizontalRule,
+  HardBreak,
+  History,
+  FormatClear,
+  Color.configure({ bubble: true }),
+  Highlight.configure({ bubble: true }),
+  Fullscreen,
+  SelectAll,
+  FontFamily,
+  Gapcursor,
+];
 
-    return {
-      qeditor: ref(
-        '<pre>Check out the two different types of dropdowns' +
-        ' in each of the "Align" buttons.</pre> '
-      ),
-    }
+// editor's content
+let content = ref(`
+  <p>Heading</p>
+  <p>This Editor is awesome!</p>
+`);
+
+function redirectForLogin() {
+  if (!useUser.user) {
+    console.log("must push");
+    $router.push("/signup");
   }
 }
+
+const that = getCurrentInstance();
+
+onMounted(async () => {
+  redirectForLogin();
+
+  await pb
+    .collection("noteTree")
+    .getOne($route.params.noteId, {
+      expand: "content",
+    })
+    .then((result) => {
+      console.log(result);
+      // content.value = result.expand?.content.content
+      that.refs.editor.setContent(result.expand?.content.content) 
+    });
+});
+
+watch(
+  () => $route.fullPath,
+  async () => {
+    await pb
+      .collection("noteTree")
+      .getOne($route.params.noteId, {
+        expand: "content",
+      })
+      .then((result) => {
+        that.refs.editor.setContent(result.expand?.content.content) 
+      });
+  }
+);
 </script>
