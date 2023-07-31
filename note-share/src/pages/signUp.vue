@@ -96,6 +96,7 @@ export default {
         :disable="btnLoading"
         :onclick="SignUp"
       />
+      <RouterLink to="/login">Log In</RouterLink>
     </form>
   </section>
 </template>
