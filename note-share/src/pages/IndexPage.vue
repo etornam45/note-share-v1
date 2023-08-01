@@ -67,6 +67,8 @@ import {
   Gapcursor,
 } from "element-tiptap-vue3-fixed";
 
+const randomColor = `hsl(${Math.floor(Math.random() * 350)}deg 89.62% 58.43%)`
+
 // editor extensions
 // they will be added to menubar and bubble menu by the order you declare.
 const extensions = [
@@ -92,7 +94,7 @@ const extensions = [
     provider: provider,
     user:{
       name: useUser.user.name,
-      color: "#DDFD9B",
+      color: "#f44336",
     }
   }),
   Link.configure({ bubble: true }),
