@@ -34,3 +34,27 @@
 .language-js{
     font-family: monospace !important;
 }
+
+
+.el-tiptap-editor__footer{
+    justify-content: flex-start !important;
+  
+    .el-tiptap-editor__characters{
+      justify-self: flex-start;
+    }
+  }
+
+*::-webkit-scrollbar{
+    width: 8px;
+    // background: violet;
+    height: 8px;
+
+}
+
+*::-webkit-scrollbar-thumb{
+    background: #6495ed;
+}
+
+.el-tiptap-editor--fullscreen{
+    z-index: 9000 !important;
+}

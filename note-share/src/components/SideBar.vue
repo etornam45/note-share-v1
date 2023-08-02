@@ -1,9 +1,10 @@
 <template>
-  <div style="margin: 0 0 0 20px; padding-top: 20px; overflow-y: hidden; height: calc(100% - 0px);">
+  <div style="padding-top: 20px; overflow-y: hidden; height: calc(100% - 0px);">
     <tree-view
       :tree-data="myTreeData"
       @load-children="handleLoadChildren"
       @add-child="addChild"
+      @delete-note="deleteNote"
     ></tree-view>
   </div>
 </template>
@@ -53,6 +54,12 @@ export default defineComponent({
           // handle routing here
           router.push("/" + item.id);
         });
+    }
+
+
+    async function deleteNote(item) {
+        item.name = "Hello"
+        console.log(item);
     }
 
     async function addChild(item) {
@@ -143,7 +150,7 @@ export default defineComponent({
         });
     });
 
-    return { ...state, handleLoadChildren, addChild, newNote, input, saveNote };
+    return { ...state, deleteNote, handleLoadChildren, addChild, newNote, input, saveNote };
   },
 });
 </script>
