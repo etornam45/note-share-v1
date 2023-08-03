@@ -24,7 +24,7 @@
             />
           </svg>
           {{ item.label }}
-
+          <!-- Floating actions -->
           <div class="floating">
             <div class="add" @click="addChild(item)">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024"><path fill="#888888" fill-opacity=".15" d="M372.5 256H184v512h656V370.4H492.1L372.5 256zM540 443.1V528h84.5c4.1 0 7.5 3.1 7.5 7v42c0 3.8-3.4 7-7.5 7H540v84.9c0 3.9-3.1 7.1-7 7.1h-42c-3.8 0-7-3.2-7-7.1V584h-84.5c-4.1 0-7.5-3.2-7.5-7v-42c0-3.9 3.4-7 7.5-7H484v-84.9c0-3.9 3.2-7.1 7-7.1h42c3.9 0 7 3.2 7 7.1z"/><path fill="#888888" d="M880 298.4H521L403.7 186.2a8.15 8.15 0 0 0-5.5-2.2H144c-17.7 0-32 14.3-32 32v592c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V330.4c0-17.7-14.3-32-32-32zM840 768H184V256h188.5l119.6 114.4H840V768z"/><path fill="#888888" d="M484 443.1V528h-84.5c-4.1 0-7.5 3.1-7.5 7v42c0 3.8 3.4 7 7.5 7H484v84.9c0 3.9 3.2 7.1 7 7.1h42c3.9 0 7-3.2 7-7.1V584h84.5c4.1 0 7.5-3.2 7.5-7v-42c0-3.9-3.4-7-7.5-7H540v-84.9c0-3.9-3.1-7.1-7-7.1h-42c-3.8 0-7 3.2-7 7.1z"/></svg>
@@ -37,6 +37,7 @@
         
 
         <div class="q-tree__node-collapsible">
+          <!-- Recursive Tree -->
           <div class="q-tree__children">
             <tree-view
               v-if="item.children"
@@ -46,10 +47,11 @@
               @delete-note="deleteNote"
             ></tree-view>
           </div>
+          <!-- Input for new note  -->
           <div class="new-input q-tree__children q-tree__node-collapsible" v-if="newNote.opened && item.id == newNote.parent" style="display: flex; align-items: center; margin-left: 10px;">
-            <form action="#" @submit="saveNote" @blur="saveNote">
-              <input v-model="input" type="text" placeholder="name" />
-              <button @click="saveNote" style="display: inline-flex; align-items: center;">
+            <form @submit.passive="saveNote">
+              <input v-model="input" type="text" autofocus placeholder="name" />
+              <button @click.prevent="saveNote" style="display: inline-flex; align-items: center;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20"  viewBox="0 0 1024 1024"><path fill="#888888" d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z"/><path fill="#888888" fill-opacity=".15" d="M184 840h656V184H184v656zm136-352c0-4.4 3.6-8 8-8h152V328c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v152h152c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8H544v152c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V544H328c-4.4 0-8-3.6-8-8v-48z"/><path fill="#888888" d="M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"/></svg>
               </button>
               <button @click="() => newNote.opened = false" style="display: inline-flex; align-items: center;">
@@ -57,9 +59,7 @@
               </button>
             </form>
           </div>
-        </div>
-
-        
+        </div>        
       </div>
     </div>
   </div>
@@ -69,7 +69,10 @@
 import { useNoteStore } from "src/stores/new-note-store";
 import PocketBase from "pocketbase";
 import { useUserStore } from "src/stores/user-store";
+import { useNoteTreeStore } from "src/stores/note-tree-store";
 const pb = new PocketBase("http://127.0.0.1:8090");
+const noteTree = useNoteTreeStore()
+
 export default {
   name: "TreeView",
   props: {
@@ -96,13 +99,16 @@ export default {
       this.$emit("delete-note", item);
     },
     async saveNote() {
+      // First create a note content document(Record) in database 
       await pb
         .collection("noteContent")
         .create({
+          // Content for a new Note
           content: "<p>Type your note here</p>",
         })
         .then(async (result) => {
           console.log(result);
+          // Create new Note in in database
           await pb
             .collection("noteTree")
             .create({
@@ -113,7 +119,18 @@ export default {
               sharedUsers: [],
             })
             .then((result) => {
+              // Clear input values
+              this.input = ''
+
               this.newNote.opened = false;
+
+              // Add a new note to treeView data
+              noteTree.addNote({
+                label: result.name,
+                parent: result.parent,
+                id: result.id,
+                children: []
+              })
             });
         });
     },
@@ -195,4 +212,4 @@ export default {
     padding: 0;
   }
 }
-</style>
+</style>W
