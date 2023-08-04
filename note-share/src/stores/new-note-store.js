@@ -5,12 +5,4 @@ export const useNoteStore = defineStore('note', {
     opened: false,
     parent: null
   }),
-  getters: {
-    doubleCount: (state) => state,
-  },
-  actions: {
-    increment() {
-      this.counter++;
-    },
-  },
 });
