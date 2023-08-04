@@ -25,6 +25,7 @@ const provider = new WebrtcProvider($route.params.noteId, ydoc);
 
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import {useOpenedNote} from "src/stores/opened-note"
 
 import {
   // necessary extensions
@@ -64,6 +65,7 @@ import {
 
 const randomColor = `hsl(${Math.floor(Math.random() * 350)}deg 89.62% 58.43%)`;
 
+const openedNote = useOpenedNote()
 // editor extensions
 // they will be added to menubar and bubble menu by the order you declare.
 const extensions = [
@@ -146,20 +148,22 @@ onMounted(async () => {
     .then((result) => {
       console.log(result);
       // content.value = result.expand?.content.content
+      openedNote.note = result
       that.refs.editor.setContent(result.expand?.content.content);
       contentId.value = result.expand?.content.id
     });
-});
-
-watch(
-  () => $route.fullPath,
-  async () => {
-    await pb
+  });
+  
+  watch(
+    () => $route.fullPath,
+    async () => {
+      await pb
       .collection("noteTree")
       .getOne($route.params.noteId, {
         expand: "content",
       })
       .then((result) => {
+        openedNote.note = result
         that.refs.editor.setContent(result.expand?.content.content);
       });
   }
