@@ -1,15 +1,29 @@
 <script>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useUserStore } from "src/stores/user-store";
 import { useOpenedNote } from "src/stores/opened-note";
 import SideBar from "src/components/SideBar.vue";
 import RightSideBar from "src/components/RightSideBar.vue";
+import { useRouter } from "vue-router";
 export default {
   setup() {
     const openedNote = useOpenedNote();
     const leftDrawerOpen = ref(false);
     const rightDrawerOpen = ref(false);
     const useUser = useUserStore();
+    const $router = useRouter()
+
+    function redirectForLogin() {
+      if (!useUser.user) {
+        console.log("must push");
+        $router.push("/signup");
+      }
+    }
+
+    onMounted( () => {
+      redirectForLogin()
+    })
+
     return {
       leftDrawerOpen,
       toggleLeftDrawer() {
