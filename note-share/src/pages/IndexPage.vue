@@ -1,8 +1,6 @@
 <script setup>
-import ElementPlus from "element-plus";
-import ElementTiptapPlugin from "element-tiptap-vue3-fixed";
 import { ElementTiptap } from "element-tiptap-vue3-fixed";
-import en from "element-tiptap-vue3-fixed/lib/locales/en";
+// import en from "element-tiptap-vue3-fixed/lib/locales/en";
 // import ElementTiptap's styles
 import "element-tiptap-vue3-fixed/lib/style.css";
 import { ref } from "vue";
@@ -11,9 +9,9 @@ import { useRoute, useRouter } from "vue-router";
 import PocketBase from "pocketbase";
 import { useUserStore } from "src/stores/user-store";
 import { getCurrentInstance } from "vue";
-
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
+import ShowDailog from "src/components/ShowDailog.vue";
 
 const pb = new PocketBase("http://127.0.0.1:8090");
 const useUser = useUserStore();
@@ -174,8 +172,9 @@ onMounted(async () => {
   <div class="content">
     <ElementTiptap v-model:content="content" :extensions="extensions" ref="editor" />
   </div>
-  <div style="z-index: 300">
+  <div style="z-index: 10000">
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <ShowDailog />
       <div class="fab" @click="saveNote">
         <svg
           xmlns="http://www.w3.org/2000/svg"
