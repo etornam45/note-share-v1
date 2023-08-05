@@ -2,11 +2,11 @@
 import { ref } from "vue";
 import PocketBase from "pocketbase";
 const pb = new PocketBase("http://127.0.0.1:8090");
-
+import { useRouter } from "vue-router";
 export default {
   setup() {
     let btnLoading = ref(false);
-
+    let router = useRouter()
     let email = ref("");
     let password = ref("");
     let passwordHint = ref("");
@@ -18,7 +18,9 @@ export default {
       const record = await pb
         .collection("users").authWithPassword(
             email.value, password.value
-        ).then()
+        ).then(() => {
+          router.push("/")
+        })
     };
 
     return {
@@ -35,7 +37,7 @@ export default {
 
 <template>
   <section>
-    <h5>Create an account</h5>
+    <h5>Log In</h5>
     <form action="">
       <q-input
         outlined
@@ -59,7 +61,7 @@ export default {
         size="lg"
         color="primary"
         class="full-width"
-        label="Sign up"
+        label="Log in"
         :loading="btnLoading"
         :disable="btnLoading"
         :onclick="SignUp"
